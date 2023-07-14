@@ -22,13 +22,13 @@
     },
     {
       "type" : "picture",
-      "title" : "The Title Text",
-      "content" : "picture.png"
+      "title" : "The Title ",
+      "content" : "Untitled.jpg"
     },
     {
       "type" : "plot",
       "title" : "The Title Text",
-      "content" : "sample.dat",
+      "content" : "data.dat",
       "configuration" : {
         "x-label" : "The Plot X Label",
         "y-label" : "The Plot Y Label"
