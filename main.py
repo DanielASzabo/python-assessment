@@ -1,5 +1,5 @@
 from pptx import Presentation
-from pptx.util import Cm
+from pptx.util import Pt
 from pptx.chart.data import XyChartData
 from pptx.enum.chart import XL_CHART_TYPE
 import json
@@ -13,8 +13,7 @@ def config_read():
 
 
 def slide_creator(slide_config):
-    top = Cm(4)
-
+    top = Pt(120)
     title_type = slide_config["type"]
     title_text = slide_config["title"]
     content = slide_config["content"]
@@ -34,22 +33,25 @@ def slide_creator(slide_config):
 
     if title_type == "title":
         slide.placeholders[1].text = content
-#todo finish the list orter to any depth
+
     elif title_type == "list":
         list_rows = slide_config["content"]
-        for list_row in list_rows:
-            level = list_row["level"]-1
-            # list
-            """
-            list_lvl1 = slide.placeholders[1]
-            list_lvl1.level = level
-            list_lvl1.text = "lvl1"
 
-            list_lvl2 = list_lvl1.text_frame.add_paragraph()
-            list_lvl2.level = 1
-            list_lvl2.text = "lvl2" """
+        for i, list_row in enumerate(list_rows):
+            level = list_row["level"]-1
+            if i == 0:
+                #every member will be added to this line always runs first
+                list_first_line = slide.placeholders[1]
+                list_first_line.level = level
+                list_first_line.text = list_row["text"]
+            else:
+                list_line = list_first_line.text_frame.add_paragraph()
+                list_line.level = level
+                list_line.text = list_row["text"]
+
     elif title_type == "text":
-        left, width, height = 1, 23, 15
+        width, height = Pt(650), Pt(425)
+        left = (pres.slide_width - width) / 2
         text_box = slide.shapes.add_textbox(left, top, width, height)
         text_box.text = slide_config["content"]
         tf = text_box.text_frame
@@ -59,22 +61,22 @@ def slide_creator(slide_config):
         image_path = "..\\images\\" + slide_config["content"]
         im = Image.open(image_path)
         picture_width = im.width
-        #todo get the image to center
-        image_left = (pres.slide_width - picture_width) / 2
+        image_left = Pt((pres.slide_width.pt - picture_width) / 2)
         slide.shapes.add_picture(image_path, image_left, top)
 
     elif title_type == "plot":
         data_path = "..\\data\\"+slide_config["content"]
         chart_data = XyChartData()
-        #todo remove the series name
-        series = chart_data.add_series("default")
+        series = chart_data.add_series("")
         data = [i.strip().split(";") for i in open(data_path).readlines()]
         for data_point in data:
             series.add_data_point(data_point[0], data_point[1])
-        chart_width, chart_length, left = Cm(16.25), Cm(12.5), Cm(3)
+        chart_width, chart_length = Pt(480), Pt(355)
+        left = (pres.slide_width - chart_width) / 2
         chart = slide.shapes.add_chart(
             XL_CHART_TYPE.XY_SCATTER_LINES, left, top, chart_width, chart_length, chart_data
         ).chart
+        chart.has_title = False
         #changing the axis labels
         x_axis = chart.category_axis
         x_axis.axis_title.text_frame.text = slide_config["configuration"]["x-label"]
@@ -89,5 +91,4 @@ if __name__ == "__main__":
     slides_conf = config_read()
     for slide_conf in slides_conf:
         slide_creator(slide_conf)
-
     pres.save(pres_name)

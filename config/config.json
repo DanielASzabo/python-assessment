@@ -16,7 +16,7 @@
       "content" : [
         { "level" : 1, "text" : "The Level 1 Text"},
         { "level" : 2, "text" : "The Level 2 Text"},
-        { "level" : 2, "text" : "The Level 2 Text"},
+        { "level" : 3, "text" : "The Level 2 Text"},
         { "level" : 1, "text" : "The Level 1 Text"}
       ]
     },
